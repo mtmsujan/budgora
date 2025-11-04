@@ -56,7 +56,7 @@ export default function Dashboard({ auth }: PageProps) {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <Link
                         href="/income/create"
                         className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all border border-slate-200/60 group"
@@ -90,6 +90,26 @@ export default function Dashboard({ auth }: PageProps) {
                             <div>
                                 <h3 className="text-xl font-bold text-slate-900 mb-1">Add Expense</h3>
                                 <p className="text-slate-600">Record a new expense transaction</p>
+                            </div>
+                            <svg className="w-6 h-6 text-slate-400 ml-auto group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </Link>
+
+                    <Link
+                        href="/transfer/create"
+                        className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all border border-slate-200/60 group"
+                    >
+                        <div className="flex items-center space-x-4">
+                            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-slate-900 mb-1">Transfer</h3>
+                                <p className="text-slate-600">Transfer money between accounts</p>
                             </div>
                             <svg className="w-6 h-6 text-slate-400 ml-auto group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
