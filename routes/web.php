@@ -12,6 +12,7 @@ use App\Http\Controllers\TransferController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AccountGroupController;
+use App\Http\Controllers\SettingsController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -46,4 +47,8 @@ Route::middleware('auth')->group(function () {
     
     // Category routes
     Route::resource('categories', CategoryController::class);
+    
+    // Settings routes
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
 });

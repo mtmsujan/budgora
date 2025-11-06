@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use App\Models\Setting;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -35,14 +36,39 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $setting = null;
+        
+        if ($user) {
+            $setting = Setting::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'currency' => 'USD',
+                    'date_format' => 'Y-m-d',
+                    'time_format' => '24',
+                    'first_day_of_week' => 'monday',
+                    'notifications_enabled' => true,
+                    'language' => 'en',
+                ]
+            );
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
             'flash' => [
                 'success' => $request->session()->get('success'),
             ],
+            'setting' => $setting ? [
+                'currency' => $setting->currency,
+                'date_format' => $setting->date_format,
+                'time_format' => $setting->time_format,
+                'first_day_of_week' => $setting->first_day_of_week,
+                'notifications_enabled' => $setting->notifications_enabled,
+                'language' => $setting->language,
+            ] : null,
         ];
     }
 }

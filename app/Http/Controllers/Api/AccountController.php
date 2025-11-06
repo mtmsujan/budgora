@@ -14,15 +14,17 @@ class AccountController extends Controller
     /**
      * Display a listing of accounts
      */
-    public function index()
+    public function index(Request $request)
     {
-        $accounts = Account::where('user_id', Auth::id())
+        $accounts = Account::where('user_id', $request->user()->id)
             ->with('group')
             ->orderBy('group_id')
             ->orderBy('name')
             ->get();
         
-        return AccountResource::collection($accounts);
+        return response()->json([
+            'data' => AccountResource::collection($accounts),
+        ]);
     }
 
     /**
@@ -39,7 +41,7 @@ class AccountController extends Controller
         ]);
 
         $account = Account::create([
-            'user_id' => Auth::id(),
+            'user_id' => $request->user()->id,
             'group_id' => $validated['group_id'] ?? null,
             'name' => $validated['name'],
             'type' => $validated['type'],
@@ -47,16 +49,20 @@ class AccountController extends Controller
             'color' => $validated['color'] ?? '#3b82f6',
         ]);
 
-        return new AccountResource($account->load('group'));
+        return response()->json([
+            'data' => new AccountResource($account->load('group')),
+        ]);
     }
 
     /**
      * Display the specified account
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
-        $account = Account::where('user_id', Auth::id())->findOrFail($id);
-        return new AccountResource($account->load('group'));
+        $account = Account::where('user_id', $request->user()->id)->findOrFail($id);
+        return response()->json([
+            'data' => new AccountResource($account->load('group')),
+        ]);
     }
 
     /**
@@ -64,7 +70,7 @@ class AccountController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $account = Account::where('user_id', Auth::id())->findOrFail($id);
+        $account = Account::where('user_id', $request->user()->id)->findOrFail($id);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -76,15 +82,17 @@ class AccountController extends Controller
 
         $account->update($validated);
 
-        return new AccountResource($account->load('group'));
+        return response()->json([
+            'data' => new AccountResource($account->load('group')),
+        ]);
     }
 
     /**
      * Remove the specified account
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
-        $account = Account::where('user_id', Auth::id())->findOrFail($id);
+        $account = Account::where('user_id', $request->user()->id)->findOrFail($id);
         $account->delete();
 
         return response()->json(['message' => 'Account deleted successfully'], 200);

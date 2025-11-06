@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import Layout from '@/Components/Layout';
 import ConfirmationModal from '@/Components/ConfirmationModal';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { PageProps } from '@/types';
+import { formatCurrency } from '@/utils/currency';
 
 interface Account {
     id: number;
@@ -32,6 +34,8 @@ interface Props {
 }
 
 export default function AccountsIndex({ accounts, groups, flash }: Props) {
+    const page = usePage<PageProps>();
+    const currency = page.props.setting?.currency || 'USD';
     const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; id: number | null }>({
         isOpen: false,
         id: null,
@@ -124,7 +128,7 @@ export default function AccountsIndex({ accounts, groups, flash }: Props) {
                                         </div>
                                         <div className="mb-4">
                                             <p className="text-2xl font-bold text-slate-900">
-                                                ${Number(account.balance).toFixed(2)}
+                                                {formatCurrency(account.balance, currency)}
                                             </p>
                                         </div>
                                         <div className="flex gap-2">

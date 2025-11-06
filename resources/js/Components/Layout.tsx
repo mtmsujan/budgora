@@ -11,12 +11,14 @@ import {
     UserPlusIcon,
     Bars3Icon,
     XMarkIcon,
+    Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 import {
     HomeIcon as HomeIconSolid,
     WalletIcon as WalletIconSolid,
     FolderIcon as FolderIconSolid,
     TagIcon as TagIconSolid,
+    Cog6ToothIcon as Cog6ToothIconSolid,
 } from '@heroicons/react/24/solid';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -87,6 +89,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         { href: '/accounts', icon: WalletIcon, iconSolid: WalletIconSolid, label: 'Accounts' },
         { href: '/account-groups', icon: FolderIcon, iconSolid: FolderIconSolid, label: 'Account Groups' },
         { href: '/categories', icon: TagIcon, iconSolid: TagIconSolid, label: 'Categories' },
+        { href: '/settings', icon: Cog6ToothIcon, iconSolid: Cog6ToothIconSolid, label: 'Settings' },
     ] : [];
 
     return (
@@ -122,6 +125,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                                     </NavLink>
                                     <NavLink href="/categories" icon={TagIcon} iconSolid={TagIconSolid}>
                                         Categories
+                                    </NavLink>
+                                    <NavLink href="/settings" icon={Cog6ToothIcon} iconSolid={Cog6ToothIconSolid}>
+                                        Settings
                                     </NavLink>
                                     <div className="h-8 w-px bg-slate-300 mx-2" />
                                     <Link

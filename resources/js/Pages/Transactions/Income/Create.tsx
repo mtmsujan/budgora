@@ -1,6 +1,8 @@
 import React from 'react';
 import Layout from '@/Components/Layout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { PageProps } from '@/types';
+import { formatCurrency } from '@/utils/currency';
 
 interface Account {
     id: number;
@@ -20,6 +22,8 @@ interface Props {
 }
 
 export default function CreateIncome({ accounts, categories }: Props) {
+    const page = usePage<PageProps>();
+    const currency = page.props.setting?.currency || 'USD';
     const { data, setData, post, processing, errors } = useForm({
         date: new Date().toISOString().slice(0, 16),
         amount: '',
@@ -137,7 +141,7 @@ export default function CreateIncome({ accounts, categories }: Props) {
                                     <option value="">Select an account</option>
                                     {accounts.map((account) => (
                                         <option key={account.id} value={account.id}>
-                                            {account.name} (${Number(account.balance).toFixed(2)})
+                                            {account.name} ({formatCurrency(account.balance, currency)})
                                         </option>
                                     ))}
                                 </select>
