@@ -1,0 +1,15 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="200" fill="url(#gradient)"/>
+  <!-- Wallet Icon -->
+  <path d="M200 300h624c44.2 0 80 35.8 80 80v264c0 44.2-35.8 80-80 80H200c-44.2 0-80-35.8-80-80V380c0-44.2 35.8-80 80-80z" fill="white" opacity="0.9"/>
+  <rect x="240" y="420" width="200" height="40" rx="20" fill="#6366f1"/>
+  <circle cx="700" cy="440" r="30" fill="#8b5cf6"/>
+</svg>
+
+

@@ -2,8 +2,8 @@ import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {useEffect, useState} from 'react';
+import {StatusBar, View, Text, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {StatusBar} from 'expo-status-bar';
 
 // Screens
 import LoginScreen from './src/screens/Auth/LoginScreen';
@@ -45,12 +45,17 @@ export default function App() {
   };
 
   if (isLoading) {
-    return null; // You can add a loading screen here
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Loading...</Text>
+        <StatusBar barStyle="dark-content" />
+      </View>
+    );
   }
 
   return (
     <>
-      <StatusBar style="auto" />
+      <StatusBar barStyle="dark-content" />
       <NavigationContainer>
         <Stack.Navigator screenOptions={{headerShown: false}}>
           {!isAuthenticated ? (
@@ -85,3 +90,16 @@ export default function App() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+  },
+  loadingText: {
+    fontSize: 18,
+    color: '#64748b',
+  },
+});
