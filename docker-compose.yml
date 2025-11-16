@@ -1,0 +1,89 @@
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: budgora_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-budgora}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-password}
+      MYSQL_USER: ${DB_USERNAME:-budgora}
+    ports:
+      - "${DB_PORT:-3307}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - budgora_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Laravel Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: budgora_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./storage:/var/www/html/storage
+    networks:
+      - budgora_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-budgora}
+      - DB_USERNAME=${DB_USERNAME:-budgora}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+
+  # Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: budgora_nginx
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - budgora_network
+    depends_on:
+      - app
+
+  # Node.js for building assets (development)
+  node:
+    image: node:20-alpine
+    container_name: budgora_node
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - node_modules:/var/www/html/node_modules
+    networks:
+      - budgora_network
+    command: sh -c "npm install && npm run dev"
+    profiles:
+      - dev
+
+volumes:
+  mysql_data:
+    driver: local
+  node_modules:
+    driver: local
+
+networks:
+  budgora_network:
+    driver: bridge
+

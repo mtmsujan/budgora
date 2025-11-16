@@ -1,0 +1,69 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules
+vendor
+
+# Laravel
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+
+# Storage
+storage/*.key
+storage/logs/*
+!storage/logs/.gitkeep
+storage/framework/cache/*
+!storage/framework/cache/.gitkeep
+storage/framework/sessions/*
+!storage/framework/sessions/.gitkeep
+storage/framework/views/*
+!storage/framework/views/.gitkeep
+
+# Build
+public/build
+public/hot
+public/storage
+
+# Testing
+.phpunit.cache
+coverage
+.nyc_output
+
+# Mobile App
+BudgoraMobile/node_modules
+BudgoraMobile/ios/build
+BudgoraMobile/ios/Pods
+BudgoraMobile/android/build
+BudgoraMobile/android/.gradle
+BudgoraMobile/android/app/build
+
+# Documentation
+*.md
+!README.md
+docs/
+
