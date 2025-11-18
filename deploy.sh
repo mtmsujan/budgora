@@ -152,6 +152,10 @@ $DOCKER_COMPOSE_CMD up -d
 echo -e "${YELLOW}Waiting for MySQL to be ready...${NC}"
 sleep 10
 
+# Step 8.5: Install Composer dependencies (if vendor directory doesn't exist)
+echo -e "${YELLOW}Step 8.5: Installing Composer dependencies...${NC}"
+$DOCKER_COMPOSE_CMD exec app sh -c "[ ! -d vendor ] && composer install --optimize-autoloader --no-interaction || echo 'Composer dependencies already installed'"
+
 # Step 9: Generate app key
 echo -e "${YELLOW}Step 9: Generating application key...${NC}"
 $DOCKER_COMPOSE_CMD exec app php artisan key:generate --force || true
