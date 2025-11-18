@@ -15,10 +15,27 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Check if running as root
+# Check if running as root - allow but warn
 if [ "$EUID" -eq 0 ]; then 
-   echo -e "${RED}Please do not run as root. Use sudo when needed.${NC}"
-   exit 1
+   echo -e "${YELLOW}Warning: Running as root.${NC}"
+   echo -e "${YELLOW}It's recommended to run as a regular user with sudo privileges.${NC}"
+   # Skip prompt if NON_INTERACTIVE is set
+   if [ -z "$NON_INTERACTIVE" ]; then
+       read -p "Continue anyway? (y/N) " -n 1 -r
+       echo
+       if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+           exit 1
+       fi
+   else
+       echo -e "${YELLOW}Non-interactive mode: Continuing as root...${NC}"
+   fi
+   SUDO_CMD=""  # Already root, no need for sudo
+   # Set USER if not set (when running as root)
+   if [ -z "$USER" ]; then
+       USER="root"
+   fi
+else
+   SUDO_CMD="sudo"  # Need sudo for privileged commands
 fi
 
 # Configuration
@@ -37,8 +54,11 @@ echo -e "${YELLOW}Step 1: Checking Docker installation...${NC}"
 if ! command -v docker &> /dev/null; then
     echo "Docker not found. Installing Docker..."
     curl -fsSL https://get.docker.com -o get-docker.sh
-    sudo sh get-docker.sh
-    sudo usermod -aG docker $USER
+    $SUDO_CMD sh get-docker.sh
+    # Only add user to docker group if not root
+    if [ "$EUID" -ne 0 ]; then
+        $SUDO_CMD usermod -aG docker $USER
+    fi
     rm get-docker.sh
     echo -e "${GREEN}Docker installed successfully!${NC}"
     echo -e "${YELLOW}Please log out and log back in, then run this script again.${NC}"
@@ -59,8 +79,8 @@ fi
 # Step 3: Create application directory
 echo -e "${YELLOW}Step 3: Setting up application directory...${NC}"
 if [ ! -d "$APP_DIR" ]; then
-    sudo mkdir -p $APP_DIR
-    sudo chown $USER:$USER $APP_DIR
+    $SUDO_CMD mkdir -p $APP_DIR
+    $SUDO_CMD chown $USER:$USER $APP_DIR
     echo -e "${GREEN}Created directory: $APP_DIR${NC}"
 else
     echo -e "${GREEN}Directory exists: $APP_DIR${NC}"
@@ -147,12 +167,12 @@ if [ -n "$DOMAIN" ] && [ -n "$EMAIL" ]; then
     
     # Install Nginx if not installed
     if ! command -v nginx &> /dev/null; then
-        sudo apt update
-        sudo apt install -y nginx
+        $SUDO_CMD apt update
+        $SUDO_CMD apt install -y nginx
     fi
     
     # Create Nginx config
-    sudo tee /etc/nginx/sites-available/$DOMAIN > /dev/null <<EOF
+    $SUDO_CMD tee /etc/nginx/sites-available/$DOMAIN > /dev/null <<EOF
 server {
     listen 80;
     listen [::]:80;
@@ -209,19 +229,19 @@ server {
 EOF
 
     # Enable site
-    sudo ln -sf /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/
-    sudo nginx -t
+    $SUDO_CMD ln -sf /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/
+    $SUDO_CMD nginx -t
     
     # Install Certbot if not installed
     if ! command -v certbot &> /dev/null; then
-        sudo apt install -y certbot python3-certbot-nginx
+        $SUDO_CMD apt install -y certbot python3-certbot-nginx
     fi
     
     # Get SSL certificate
-    sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email $EMAIL
+    $SUDO_CMD certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email $EMAIL
     
     # Reload Nginx
-    sudo systemctl reload nginx
+    $SUDO_CMD systemctl reload nginx
     
     echo -e "${GREEN}Nginx and SSL configured!${NC}"
 fi
@@ -229,9 +249,9 @@ fi
 # Step 15: Set up firewall
 echo -e "${YELLOW}Step 15: Configuring firewall...${NC}"
 if command -v ufw &> /dev/null; then
-    sudo ufw allow 22/tcp
-    sudo ufw allow 80/tcp
-    sudo ufw allow 443/tcp
+    $SUDO_CMD ufw allow 22/tcp
+    $SUDO_CMD ufw allow 80/tcp
+    $SUDO_CMD ufw allow 443/tcp
     echo -e "${GREEN}Firewall configured${NC}"
 fi
 
