@@ -69,11 +69,26 @@ fi
 
 # Step 2: Check Docker Compose
 echo -e "${YELLOW}Step 2: Checking Docker Compose...${NC}"
-if ! docker compose version &> /dev/null; then
-    echo -e "${RED}Docker Compose not found. Please install it.${NC}"
-    exit 1
+DOCKER_COMPOSE_CMD="docker compose"
+if docker compose version &> /dev/null; then
+    echo -e "${GREEN}Docker Compose v2 is installed${NC}"
+elif docker-compose version &> /dev/null; then
+    echo -e "${GREEN}Docker Compose (legacy) is installed${NC}"
+    DOCKER_COMPOSE_CMD="docker-compose"
 else
-    echo -e "${GREEN}Docker Compose is installed${NC}"
+    echo -e "${YELLOW}Docker Compose not found. Installing Docker Compose plugin...${NC}"
+    # Docker Compose v2 is installed with Docker, but if missing, install the plugin
+    $SUDO_CMD apt update
+    $SUDO_CMD apt install -y docker-compose-plugin
+    if docker compose version &> /dev/null; then
+        echo -e "${GREEN}Docker Compose installed successfully${NC}"
+        DOCKER_COMPOSE_CMD="docker compose"
+    else
+        echo -e "${RED}Failed to install Docker Compose. Please install it manually.${NC}"
+        echo "You can install it with: $SUDO_CMD apt install -y docker-compose-plugin"
+        echo "Or install legacy version: $SUDO_CMD apt install -y docker-compose"
+        exit 1
+    fi
 fi
 
 # Step 3: Create application directory
@@ -128,10 +143,10 @@ fi
 
 # Step 7: Build and start containers
 echo -e "${YELLOW}Step 7: Building Docker images...${NC}"
-docker compose build
+$DOCKER_COMPOSE_CMD build
 
 echo -e "${YELLOW}Step 8: Starting containers...${NC}"
-docker compose up -d
+$DOCKER_COMPOSE_CMD up -d
 
 # Wait for MySQL to be ready
 echo -e "${YELLOW}Waiting for MySQL to be ready...${NC}"
@@ -139,27 +154,27 @@ sleep 10
 
 # Step 9: Generate app key
 echo -e "${YELLOW}Step 9: Generating application key...${NC}"
-docker compose exec app php artisan key:generate --force || true
+$DOCKER_COMPOSE_CMD exec app php artisan key:generate --force || true
 
 # Step 10: Run migrations
 echo -e "${YELLOW}Step 10: Running database migrations...${NC}"
-docker compose exec app php artisan migrate --force || echo "Migrations may have warnings"
+$DOCKER_COMPOSE_CMD exec app php artisan migrate --force || echo "Migrations may have warnings"
 
 # Step 11: Set permissions
 echo -e "${YELLOW}Step 11: Setting permissions...${NC}"
-docker compose exec app chown -R www-data:www-data storage bootstrap/cache
-docker compose exec app chmod -R 775 storage bootstrap/cache
+$DOCKER_COMPOSE_CMD exec app chown -R www-data:www-data storage bootstrap/cache
+$DOCKER_COMPOSE_CMD exec app chmod -R 775 storage bootstrap/cache
 
 # Step 12: Build assets
 echo -e "${YELLOW}Step 12: Building frontend assets...${NC}"
-docker compose exec app npm install
-docker compose exec app npm run build
+$DOCKER_COMPOSE_CMD exec app npm install
+$DOCKER_COMPOSE_CMD exec app npm run build
 
 # Step 13: Optimize Laravel
 echo -e "${YELLOW}Step 13: Optimizing Laravel...${NC}"
-docker compose exec app php artisan config:cache
-docker compose exec app php artisan route:cache
-docker compose exec app php artisan view:cache
+$DOCKER_COMPOSE_CMD exec app php artisan config:cache
+$DOCKER_COMPOSE_CMD exec app php artisan route:cache
+$DOCKER_COMPOSE_CMD exec app php artisan view:cache
 
 # Step 14: Set up Nginx reverse proxy (if domain provided)
 if [ -n "$DOMAIN" ] && [ -n "$EMAIL" ]; then
@@ -259,13 +274,13 @@ echo ""
 echo -e "${GREEN}✅ Deployment completed successfully!${NC}"
 echo ""
 echo "Application Status:"
-docker compose ps
+$DOCKER_COMPOSE_CMD ps
 echo ""
 echo "Useful commands:"
-echo "  View logs: docker compose logs -f"
-echo "  Restart: docker compose restart"
-echo "  Stop: docker compose stop"
-echo "  Start: docker compose start"
+echo "  View logs: $DOCKER_COMPOSE_CMD logs -f"
+echo "  Restart: $DOCKER_COMPOSE_CMD restart"
+echo "  Stop: $DOCKER_COMPOSE_CMD stop"
+echo "  Start: $DOCKER_COMPOSE_CMD start"
 echo ""
 if [ -n "$DOMAIN" ]; then
     echo -e "${GREEN}Access your application at: https://$DOMAIN${NC}"
