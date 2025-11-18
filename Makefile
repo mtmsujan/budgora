@@ -45,7 +45,7 @@ npm: ## Run npm command (usage: make npm CMD="install")
 mysql: ## Open MySQL shell
 	docker-compose exec mysql mysql -u budgora -pbudgora budgora
 
-setup: ## Initial setup (copy env, build, up, key generate, migrate)
+setup: ## Initial setup (copy env, build, up, key generate, migrate, seed)
 	@if [ ! -f .env ]; then \
 		echo "📋 Creating .env file..."; \
 		cp .env.docker.example .env 2>/dev/null || cp .env.example .env; \
@@ -56,7 +56,10 @@ setup: ## Initial setup (copy env, build, up, key generate, migrate)
 	docker-compose exec app php artisan key:generate --force || true
 	@echo "📦 Running database migrations..."
 	@docker-compose exec app php artisan migrate --force || (echo "⚠️  Migration completed with warnings (some may already be applied)" && exit 0)
+	@echo "🌱 Seeding database..."
+	@docker-compose exec app php artisan db:seed --force || true
 	@echo "✅ Setup complete! Access the app at http://localhost:8080"
+	@echo "📧 Login with: admin@mail.com / 12345678"
 
 install: ## Install dependencies (composer + npm)
 	docker-compose exec app composer install

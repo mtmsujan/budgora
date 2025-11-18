@@ -5,6 +5,8 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "NO_FLIPPER=1 react-native run-ios",
+    "ios:sim": "NO_FLIPPER=1 react-native run-ios --simulator=\"iPhone 17 Pro\"",
+    "ios:xcode": "open ios/Budgora.xcworkspace",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"

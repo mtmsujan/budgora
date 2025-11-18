@@ -28,6 +28,12 @@ if [ $MIGRATE_EXIT -ne 0 ]; then
     echo "⚠️  Migration completed with warnings (some may already be applied)"
 fi
 
+# Run seeders if SEED_DATABASE is set to true
+if [ "$SEED_DATABASE" = "true" ]; then
+    echo "🌱 Seeding database..."
+    php artisan db:seed --force || true
+fi
+
 # Clear and cache config (only if not in development)
 echo "🧹 Optimizing application..."
 if [ "$APP_ENV" != "local" ]; then

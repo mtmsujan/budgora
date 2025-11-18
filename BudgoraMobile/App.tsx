@@ -69,7 +69,9 @@ export default function App() {
             </>
           ) : (
             <>
-              <Stack.Screen name="Dashboard" component={DashboardScreen} />
+              <Stack.Screen name="Dashboard">
+                {props => <DashboardScreen {...props} onLogout={() => setIsAuthenticated(false)} />}
+              </Stack.Screen>
               <Stack.Screen name="Accounts" component={AccountsScreen} />
               <Stack.Screen name="AccountDetail" component={AccountDetailScreen} />
               <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />

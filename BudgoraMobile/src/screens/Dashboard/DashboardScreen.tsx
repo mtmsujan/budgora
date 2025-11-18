@@ -14,7 +14,7 @@ import {authService} from '../../services/authService';
 import {settingsService} from '../../services/settingsService';
 import {formatCurrency} from '../../utils/currency';
 
-export default function DashboardScreen({navigation}: any) {
+export default function DashboardScreen({navigation, onLogout}: any) {
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -82,10 +82,10 @@ export default function DashboardScreen({navigation}: any) {
         style: 'destructive',
         onPress: async () => {
           await authService.logout();
-          navigation.reset({
-            index: 0,
-            routes: [{name: 'Login'}],
-          });
+          // Call onLogout callback to update auth state in App.tsx
+          if (onLogout) {
+            onLogout();
+          }
         },
       },
     ]);
