@@ -34,20 +34,31 @@ return new class extends Migration
 
         // Add foreign key constraint separately (in case column exists but constraint doesn't)
         if (Schema::hasTable('account_groups') && Schema::hasColumn('accounts', 'group_id')) {
-            // Check if foreign key already exists
-            $foreignKeys = DB::select(
-                "SELECT CONSTRAINT_NAME 
-                 FROM information_schema.KEY_COLUMN_USAGE 
-                 WHERE TABLE_SCHEMA = DATABASE() 
-                 AND TABLE_NAME = 'accounts' 
-                 AND COLUMN_NAME = 'group_id' 
-                 AND REFERENCED_TABLE_NAME IS NOT NULL"
-            );
-
-            if (empty($foreignKeys)) {
+            // Try to add the foreign key constraint
+            // If it already exists, catch the exception and continue
+            try {
                 Schema::table('accounts', function (Blueprint $table) {
                     $table->foreign('group_id')->references('id')->on('account_groups')->onDelete('set null');
                 });
+            } catch (\Illuminate\Database\QueryException $e) {
+                // Check if the error is about the constraint already existing
+                $errorCode = $e->getCode();
+                $errorMessage = $e->getMessage();
+                
+                // MySQL error codes: 1022 (Duplicate key name), 1061 (Duplicate key name)
+                // PostgreSQL error codes: 42710 (duplicate_object)
+                // SQLite: constraint already exists
+                if ($errorCode == 1022 || $errorCode == 1061 || 
+                    str_contains($errorMessage, 'already exists') || 
+                    str_contains($errorMessage, 'duplicate') ||
+                    str_contains($errorMessage, 'Duplicate key') ||
+                    str_contains($errorMessage, 'duplicate_object')) {
+                    // Foreign key already exists, which is fine - continue
+                    return;
+                }
+                
+                // Re-throw if it's a different error
+                throw $e;
             }
         }
     }
