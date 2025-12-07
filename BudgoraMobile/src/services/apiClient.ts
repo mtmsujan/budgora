@@ -7,8 +7,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // For Android Emulator: use 'http://10.0.2.2:8000/api/v1'
 // For Physical Android Device: use 'http://YOUR_COMPUTER_IP:8000/api/v1'
 const API_BASE_URL = __DEV__
-  ? 'http://localhost:8000/api/v1' // Change this to your backend URL
-  : 'https://your-production-domain.com/api/v1';
+  // ? 'http://localhost:8000/api/v1' // Development: local backend
+  ? 'https://budgora.xyz/api/v1' // Development: local backend
+  : 'https://budgora.xyz/api/v1'; // Production: live site
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
